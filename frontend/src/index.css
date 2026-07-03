@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Inter", sans-serif;
+  }
+  body {
+    @apply bg-paper text-ink dark:bg-ink dark:text-paper transition-colors duration-200;
+  }
+  ::selection {
+    @apply bg-signal-amber/30;
+  }
+  *:focus-visible {
+    outline: 2px solid #f5a623;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-paper-panel dark:bg-ink-panel border border-paper-border dark:border-ink-border rounded-xl;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-signal-amber text-ink font-display font-semibold px-4 py-2 text-sm hover:brightness-105 active:brightness-95 transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-paper-border dark:border-ink-border bg-transparent text-current font-display font-medium px-4 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/5 transition;
+  }
+  .input {
+    @apply w-full rounded-lg border border-paper-border dark:border-ink-border bg-paper-panel dark:bg-ink-panel px-3 py-2 text-sm focus:border-signal-amber outline-none transition;
+  }
+  .label {
+    @apply block text-xs font-mono uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1;
+  }
+}
