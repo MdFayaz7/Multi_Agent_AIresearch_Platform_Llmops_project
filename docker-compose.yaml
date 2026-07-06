@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend
+    image: ghcr.io/<your-github-username>/<your-repo-name>/backend:latest
     env_file:
       - ./backend/.env
     ports:
@@ -8,10 +8,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_BASE_URL: http://localhost:8000
+    image: ghcr.io/<your-github-username>/<your-repo-name>/frontend:latest
     ports:
       - "5173:80"
     depends_on:
