@@ -1,5 +1,6 @@
 services:
   backend:
+    image: ghcr.io/${REPO_LOWER}/backend:latest
     build: ./backend
     env_file:
       - ./backend/.env
@@ -8,6 +9,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    image: ghcr.io/${REPO_LOWER}/frontend:latest
     build:
       context: ./frontend
       args:

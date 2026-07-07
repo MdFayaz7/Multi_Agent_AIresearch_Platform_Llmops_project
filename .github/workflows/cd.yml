@@ -19,15 +19,19 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           script: |
-            # ✅ FIX: Navigate to the actual folder where your docker-compose.yml lives.
-            # Change "ubuntu" below if you use a different SSH username (like ec2-user or root)
             cd /home/ubuntu/nexus-research-platform
-            
+
+            # Pull latest code (including updated docker-compose.yaml)
+            git pull origin main
+
+            # Set the lowercase repo name for image references
+            export REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
             # Log in to GHCR
             echo "${{ secrets.DEPLOY_GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            
-            # Pull the latest Docker images
-            docker compose pull
-            
+
+            # Pull the latest Docker images from GHCR
+            REPO_LOWER=$REPO_LOWER docker compose pull
+
             # Restart the services with the new images
-            docker compose up -d --remove-orphans
+            REPO_LOWER=$REPO_LOWER docker compose up -d --remove-orphans
