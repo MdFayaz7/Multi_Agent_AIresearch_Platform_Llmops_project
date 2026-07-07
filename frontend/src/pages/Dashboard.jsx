@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AppShell from "../components/AppShell.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
-import { listResearch } from "../api/client";
+import { listResearch, getTokenStats, getCostStats } from "../api/client";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [recent, setRecent] = useState([]);
+  const [tokenStats, setTokenStats] = useState({ input_tokens: 0, output_tokens: 0, total_tokens: 0 });
+  const [costStats, setCostStats] = useState({ today_cost: 0, month_cost: 0, average_cost: 0 });
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -19,6 +21,14 @@ export default function Dashboard() {
         const completed = data.items.filter((r) => r.status === "completed").length;
         const inProgress = data.items.filter((r) => !["completed", "failed"].includes(r.status)).length;
         setStats({ total: data.total, completed, inProgress });
+
+        const tokenRes = await getTokenStats();
+        setTokenStats(tokenRes.data);
+
+        const costRes = await getCostStats();
+        setCostStats(costRes.data);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
       } finally {
         setLoading(false);
       }
@@ -37,6 +47,54 @@ export default function Dashboard() {
         <StatCard label="Total Reports" value={stats.total} accent="text-signal-cyan" />
         <StatCard label="Completed" value={stats.completed} accent="text-signal-success" />
         <StatCard label="In Progress" value={stats.inProgress} accent="text-signal-amber" />
+      </div>
+
+      <div className="panel p-6 mb-8 border border-slate-800 bg-slate-900/50">
+        <h2 className="font-display font-semibold text-sm tracking-wide mb-4">Today's Token Usage</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">Input Tokens</p>
+            <p className="font-display font-bold text-2xl text-slate-200">
+              {tokenStats.input_tokens.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">Output Tokens</p>
+            <p className="font-display font-bold text-2xl text-slate-200">
+              {tokenStats.output_tokens.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">Total Tokens</p>
+            <p className="font-display font-bold text-2xl text-signal-amber">
+              {tokenStats.total_tokens.toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel p-6 mb-8 border border-slate-800 bg-slate-900/50">
+        <h2 className="font-display font-semibold text-sm tracking-wide mb-4">Cost Monitoring</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">Today's Cost</p>
+            <p className="font-display font-bold text-2xl text-slate-200">
+              ${costStats.today_cost.toFixed(2)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">This Month</p>
+            <p className="font-display font-bold text-2xl text-slate-200">
+              ${costStats.month_cost.toFixed(2)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-mono mb-1">Average Cost per Report</p>
+            <p className="font-display font-bold text-2xl text-signal-success">
+              ${costStats.average_cost.toFixed(2)}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mb-4">

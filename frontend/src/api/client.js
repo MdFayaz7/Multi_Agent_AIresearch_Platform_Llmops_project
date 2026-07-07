@@ -59,6 +59,10 @@ export const deleteResearch = (id) => apiClient.delete(`/api/research/${id}`);
 
 export const submitFeedback = (id, data) => apiClient.post(`/api/research/${id}/feedback`, data);
 
+export const getTokenStats = () => apiClient.get("/api/research/token-stats");
+
+export const getCostStats = () => apiClient.get("/api/research/cost-stats");
+
 // Downloads require the Authorization header, so we fetch as a blob
 // and trigger a save via a temporary object URL rather than a plain <a href>.
 export const downloadResearchExport = async (id, fmt, filename) => {

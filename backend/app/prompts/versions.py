@@ -1,0 +1,2 @@
+CURRENT_WRITER_PROMPT = "writer_v1"
+CURRENT_CRITIC_PROMPT = "critic_v1"

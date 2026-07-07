@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
+from app.database import get_sync_collection
 
 from pydantic import BaseModel, Field
 

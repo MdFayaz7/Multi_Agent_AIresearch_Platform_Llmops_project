@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, time
 from typing import Optional
+from app.database import db
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -105,6 +106,63 @@ async def list_research(
         "page": page,
         "page_size": page_size,
         "total_pages": (total + page_size - 1) // page_size,
+    }
+
+
+@router.get("/token-stats")
+async def get_token_stats(current_user: dict = Depends(get_current_user)):
+    today_start = datetime.combine(datetime.now(timezone.utc).date(), time.min, tzinfo=timezone.utc)
+    cursor = db["token_usage"].find({
+        "user_id": current_user["_id"],
+        "created_at": {"$gte": today_start}
+    })
+    input_tokens = 0
+    output_tokens = 0
+    total_tokens = 0
+    async for record in cursor:
+        input_tokens += record.get("input_tokens", 0)
+        output_tokens += record.get("output_tokens", 0)
+        total_tokens += record.get("total_tokens", 0)
+    return {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens
+    }
+
+
+@router.get("/cost-stats")
+async def get_cost_stats(current_user: dict = Depends(get_current_user)):
+    now = datetime.now(timezone.utc)
+    today_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+    month_start = datetime.combine(now.date().replace(day=1), time.min, tzinfo=timezone.utc)
+    user_id = current_user["_id"]
+    today_cursor = db["costs"].find({
+        "user_id": user_id,
+        "created_at": {"$gte": today_start}
+    })
+    today_cost = 0.0
+    async for record in today_cursor:
+        today_cost += record.get("total_cost", 0.0)
+    month_cursor = db["costs"].find({
+        "user_id": user_id,
+        "created_at": {"$gte": month_start}
+    })
+    month_cost = 0.0
+    async for record in month_cursor:
+        month_cost += record.get("total_cost", 0.0)
+    all_cursor = db["costs"].find({
+        "user_id": user_id
+    })
+    total_cost_all = 0.0
+    count_all = 0
+    async for record in all_cursor:
+        total_cost_all += record.get("total_cost", 0.0)
+        count_all += 1
+    average_cost = (total_cost_all / count_all) if count_all > 0 else 0.0
+    return {
+        "today_cost": round(today_cost, 4),
+        "month_cost": round(month_cost, 4),
+        "average_cost": round(average_cost, 4)
     }
 
 
