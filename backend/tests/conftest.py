@@ -9,6 +9,10 @@ import os
 os.environ["MONGO_URI"] = "mongodb://localhost:27017"
 os.environ["MONGO_DB_NAME"] = "test_db"
 os.environ["JWT_SECRET"] = "test_secret_key_that_is_long_enough"
+os.environ["OPENROUTER_API_KEY"] = "dummy-openrouter-key"
+os.environ["TAVILY_API_KEY"] = "dummy-tavily-key"
+os.environ["LANGCHAIN_API_KEY"] = "dummy-langchain-key"
+os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
 import app.database
 # Patch MongoDB clients with mongomock
